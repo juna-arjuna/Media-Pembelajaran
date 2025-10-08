@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Urutkan Kata — Bahasa Inggris</title>
+  <style>
+    :root{
+      --green-dark: #0b5a3a;
+      --green-light: #dff7e6;
+      --white: #ffffff;
+      --accent: #1f8f4a;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    body{
+      background:var(--green-dark);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:100vh;
+      margin:0;
+      color:#08321f;
+    }
+    .container{
+      width:min(900px,95%);
+      background:var(--green-light);
+      border-radius:12px;
+      padding:24px;
+      box-shadow:0 12px 30px rgba(0,0,0,0.18);
+    }
+    h1{margin:0 0 6px;font-size:1.4rem}
+    p{margin:0 0 18px}
+    .words-panel{
+      background:rgba(255,255,255,0.2);
+      border-radius:10px;
+      padding:12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:16px;
+    }
+    .word{
+      background:#fff;
+      border-radius:8px;
+      padding:8px 12px;
+      cursor:grab;
+      box-shadow:0 3px 10px rgba(0,0,0,0.1);
+      font-weight:600;
+    }
+    .drop-area{
+      background:#fff;
+      border:2px dashed rgba(0,0,0,0.1);
+      border-radius:10px;
+      min-height:100px;
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    textarea{
+      width:100%;
+      border:none;
+      resize:none;
+      min-height:60px;
+      font-size:1rem;
+      outline:none;
+    }
+    .controls{margin-top:12px;display:flex;gap:10px}
+    button{
+      padding:10px 14px;
+      border:none;
+      border-radius:8px;
+      color:#fff;
+      font-weight:700;
+      cursor:pointer;
+    }
+    #btnCheck{background:var(--accent);}
+    #btnReset{background:#6b6b6b;}
+    .notif{margin-top:12px;padding:10px 12px;border-radius:8px;display:none;font-weight:600}
+    .notif.success{display:block;background:#e6ffef;color:#046b2e;border:1px solid #b7f2d1;}
+    .notif.error{display:block;background:#fff0f0;color:#8b1a1a;border:1px solid #f3c2c2;}
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Urutkan Kata (Bahasa Inggris)</h1>
+    <p>Seret dan susun kata berikut agar menjadi kalimat yang benar.</p>
+    <div id="words" class="words-panel"></div>
+
+    <div class="drop-area">
+      <textarea id="answer" placeholder="Seret kata ke sini..."></textarea>
+      <div class="controls">
+        <button id="btnCheck">HASIL</button>
+        <button id="btnReset">RESET</button>
+      </div>
+      <div id="notif" class="notif"></div>
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      const ORIGINAL = ["I","am","going","to","the","market"];
+      const TARGET = ORIGINAL.join(' ').toLowerCase();
+
+      const wordsEl = document.getElementById('words');
+      const answerEl = document.getElementById('answer');
+      const notif = document.getElementById('notif');
+      const btnCheck = document.getElementById('btnCheck');
+      const btnReset = document.getElementById('btnReset');
+      let moved = new Set();
+
+      function shuffle(arr){
+        const a = arr.slice();
+        for(let i=a.length-1;i>0;i--){
+          const j=Math.floor(Math.random()*(i+1));
+          [a[i],a[j]]=[a[j],a[i]];
+        }
+        return a;
+      }
+
+      function renderWords(list){
+        wordsEl.innerHTML='';
+        list.forEach(w=>{
+          const btn=document.createElement('div');
+          btn.textContent=w;
+          btn.className='word';
+          btn.draggable=true;
+          btn.addEventListener('dragstart',e=>{
+            e.dataTransfer.setData('text/plain',w);
+          });
+          btn.addEventListener('click',()=>moveWord(w,btn));
+          wordsEl.appendChild(btn);
+        });
+      }
+
+      function moveWord(word,element){
+        if(moved.has(word)) return;
+        const sep = answerEl.value.trim()===''?'':' ';
+        answerEl.value = answerEl.value + sep + word;
+        moved.add(word);
+        element.style.visibility='hidden';
+      }
+
+      function init(){
+        moved.clear();
+        renderWords(shuffle(ORIGINAL));
+        answerEl.value='';
+        notif.style.display='none';
+      }
+
+      wordsEl.addEventListener('dragover',e=>e.preventDefault());
+      document.querySelector('.drop-area').addEventListener('dragover',e=>e.preventDefault());
+      document.querySelector('.drop-area').addEventListener('drop',e=>{
+        e.preventDefault();
+        const word=e.dataTransfer.getData('text/plain');
+        const btn=Array.from(wordsEl.children).find(el=>el.textContent===word);
+        if(btn) moveWord(word,btn);
+      });
+
+      btnCheck.addEventListener('click',()=>{
+        const val=answerEl.value.trim().replace(/\s+/g,' ').toLowerCase();
+        if(val===TARGET){
+          notif.className='notif success';
+          notif.textContent='Hebat, Jawaban Anda Benar';
+        }else{
+          notif.className='notif error';
+          notif.textContent='Maaf. Jawaban Anda Salah, Ulangi lagi!';
+        }
+        notif.style.display='block';
+      });
+
+      btnReset.addEventListener('click',init);
+      init();
+    })();
+  </script>
+</body>
+</html>
