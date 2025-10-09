@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Ulangan Harian - Al Qur'an Hadits (Kelas VIII)</title>
+<style>
+  :root{
+    --bg-main:#b0c4de;
+    --header-bg:#1e3a8a;
+    --card-bg:#ffffff;
+    --accent:#1e40af;
+    --danger:#dc2626;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    background:var(--bg-main);
+    color:#0b2540;
+  }
+
+  /* sticky header */
+  header{
+    position:fixed;
+    top:0; left:0; right:0;
+    height:96px;
+    background:var(--header-bg);
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:1000;
+    box-shadow:0 2px 8px rgba(0,0,0,0.2);
+    padding:10px 16px;
+  }
+  header img.logo{
+    position:absolute;
+    left:16px;
+    top:12px;
+    height:72px;
+    width:auto;
+  }
+  header .siswa-small{
+    position:absolute;
+    left:110px;
+    top:18px;
+    color:#f0f6ff;
+    font-weight:700;
+    text-align:left;
+    line-height:1;
+  }
+  header .title{
+    text-align:center;
+  }
+  header .title h1{margin:0;font-size:1.15rem}
+  header .title p{margin:4px 0 0 0;font-size:0.92rem;opacity:0.95}
+  #timer {
+    position:absolute;
+    right:18px;
+    top:18px;
+    background:#fff;
+    color:var(--header-bg);
+    padding:6px 10px;
+    border-radius:8px;
+    font-weight:800;
+  }
+
+  /* pages layout */
+  .page { display:none; padding-top:110px; min-height:100vh; } /* padding-top so content not hidden under sticky header */
+
+  /* login box */
+  .center-box{
+    max-width:420px;
+    margin:80px auto;
+    background:var(--card-bg);
+    padding:22px;
+    border-radius:10px;
+    box-shadow:0 8px 30px rgba(2,6,23,0.12);
+    text-align:center;
+  }
+  .center-box h2{margin:0 0 12px 0;color:var(--header-bg)}
+  .center-box input{
+    width:100%;
+    padding:10px;
+    margin:8px 0;
+    border-radius:8px;
+    border:1px solid #d1d5db;
+    font-size:1rem;
+  }
+  .btn{
+    display:inline-block;
+    padding:10px 14px;
+    border-radius:8px;
+    border:0;
+    color:#fff;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--accent)}
+  .btn-start{background:#16a34a}
+  .btn-danger{background:var(--danger)}
+
+  /* main test area */
+  main.test {
+    max-width:900px;
+    margin:20px auto 80px auto;
+    background:var(--card-bg);
+    border-radius:10px;
+    padding:18px;
+    box-shadow:0 6px 20px rgba(2,6,23,0.08);
+  }
+  .question{
+    display:block;
+  }
+  .q-title{font-weight:800;color:var(--header-bg);margin:0 0 8px 0}
+  .q-text textarea{
+    width:100%; min-height:90px; resize:vertical;
+    border-radius:8px;border:1px solid #cbd5e1;padding:10px;font-size:1rem;
+  }
+  .options{margin-top:10px}
+  .options label{display:block;margin:6px 0;cursor:pointer;padding:6px;border-radius:8px}
+  .options input{margin-right:8px}
+
+  .pager{display:flex;justify-content:space-between;gap:8px;margin-top:18px;align-items:center}
+  .pager .left,.pager .right{display:flex;gap:8px}
+  .meta{font-size:0.95rem;color:#334155}
+
+  .footer-note{margin-top:12px;font-size:0.9rem;color:#334155;text-align:center}
+
+  /* small screens */
+  @media (max-width:640px){
+    header .siswa-small{left:96px; top:10px; font-size:0.95rem}
+    header img.logo{height:56px; left:10px; top:18px}
+    main.test{margin:120px 12px 80px 12px}
+    #timer{right:10px;top:10px}
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER (sticky) -->
+<header id="hdr">
+  <img class="logo" src="MTS_NH_Transparan_BgClear.png" alt="Logo">
+  <div class="siswa-small" id="hdrSiswa"><!-- filled after identitas --></div>
+  <div class="title">
+    <h1>Ulangan Harian Mapel Al Qur'an Hadits</h1>
+    <p>MTs NU Nurul Huda Kudus — Kelas VIII</p>
+  </div>
+  <div id="timer" style="display:none">10:00</div>
+</header>
+
+<!-- LOGIN PAGE -->
+<section id="page-login" class="page" style="display:block">
+  <div class="center-box" style="margin-top:120px">
+    <h2>Login Ulangan Harian</h2>
+    <input id="loginUser" type="text" placeholder="Username" autocomplete="username">
+    <input id="loginPass" type="password" placeholder="Password" autocomplete="current-password">
+    <div style="height:8px"></div>
+    <button id="btnLogin" class="btn btn-primary" style="width:100%">Masuk</button>
+    <div id="loginErr" style="color:#b91c1c;font-weight:700;margin-top:10px;display:none">Username atau password salah</div>
+  </div>
+</section>
+
+<!-- IDENTITAS PAGE -->
+<section id="page-identitas" class="page">
+  <div class="center-box">
+    <h2>Isi Identitas</h2>
+    <input id="inputNama" type="text" placeholder="Nama Lengkap">
+    <input id="inputKelas" type="text" placeholder="Kelas (contoh: VIII A)">
+    <input id="inputAbsen" type="text" placeholder="Nomor Absen (opsional)">
+    <div style="height:10px"></div>
+    <button id="btnMulai" class="btn btn-start" style="width:100%">MULAI MENGERJAKAN</button>
+  </div>
+</section>
+
+<!-- TEST PAGE -->
+<main id="page-test" class="test page" style="display:none">
+
+  <!-- question container: questions are rendered dynamically -->
+  <div id="questionContainer"></div>
+
+  <div class="pager">
+    <div class="left">
+      <button id="btnPrev" class="btn btn-primary">Sebelumnya</button>
+    </div>
+
+    <div class="right">
+      <div class="meta" id="metaProgress">Soal 1 / 10</div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button id="btnNext" class="btn btn-primary">Selanjutnya</button>
+        <button id="btnReset" class="btn btn-danger">Reset Jawaban</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    Setelah soal terakhir, tombol <strong>Selanjutnya</strong> menjadi <strong>Kirim Jawaban</strong>.
+  </div>
+</main>
+
+<!-- RESULT PAGE (after submit) -->
+<section id="page-result" class="page">
+  <div class="center-box" style="text-align:center; margin-top:120px">
+    <h2>Terima Kasih</h2>
+    <p id="resultSummary"></p>
+    <div style="height:12px"></div>
+    <button id="btnDownloadAgain" class="btn btn-primary" style="display:none">Unduh Rekap</button>
+  </div>
+</section>
+
+<script>
+(function(){
+  // --- configuration ---
+  const USER = {username: "siswa", password: "12345"};
+  const TOTAL = 10;
+  const MCQ_COUNT = 5; // first 5 questions are MCQ
+  const POINTS_PER_MCQ = 10;
+  const DURATION_SECONDS = 10*60; // 10 minutes
+
+  // sample questions (editable in textarea): 5 MCQ (A-D) then 5 short-answer
+  const QUESTIONS = [
+    {type:"mcq", text:"Hukum mempelajari ilmu tajwid yaitu ...", choices:["A jawaban","B jawaban","C jawaban","D jawaban"], correct:"A"},
+    {type:"mcq", text:"Hukum membaca al qur'an sesuai kaidah ilmu tajwid yaitu ...", choices:["A","B","C","D"], correct:"B"},
+    {type:"mcq", text:"Huruf mad yaitu ...", choices:["A","B","C","D"], correct:"C"},
+    {type:"mcq", text:"Mad Iwad secara bahasa artinya ...", choices:["A","B","C","D"], correct:"D"},
+    {type:"mcq", text:"Mad Layyin secara bahasa artinya ...", choices:["A","B","C","D"], correct:"A"},
+    {type:"short", text:"Mad Arid Lissukun secara bahasa artinya ..."},
+    {type:"short", text:"Cara membaca mad Iwad yaitu ..."},
+    {type:"short", text:"Cara membaca Mad Layyin yaitu ..."},
+    {type:"short", text:"Cara membaca mad arid lissukun yaitu ..."},
+    {type:"short", text:"Tulis soal isian singkat 10 di sini..."}
+  ];
+
+  // state
+  let state = {
+    currentIndex: 0,
+    answers: Array(TOTAL).fill(""), // store answers as strings; for MCQ store "A"/"B"/...
+    started: false,
+    timer: null,
+    timeRemaining: DURATION_SECONDS,
+    nama: "",
+    kelas: "",
+    absen: ""
+  };
+
+  // DOM refs
+  const pageLogin = document.getElementById("page-login");
+  const pageIdent = document.getElementById("page-identitas");
+  const pageTest = document.getElementById("page-test");
+  const pageResult = document.getElementById("page-result");
+  const hdrSiswa = document.getElementById("hdrSiswa");
+  const timerEl = document.getElementById("timer");
+  const qContainer = document.getElementById("questionContainer");
+  const metaProgress = document.getElementById("metaProgress");
+  const resultSummary = document.getElementById("resultSummary");
+  const btnDownloadAgain = document.getElementById("btnDownloadAgain");
+
+  // elements: login
+  document.getElementById("btnLogin").addEventListener("click", ()=>{
+    const u = document.getElementById("loginUser").value.trim();
+    const p = document.getElementById("loginPass").value.trim();
+    if(u === USER.username && p === USER.password){
+      pageLogin.style.display = "none";
+      pageIdent.style.display = "block";
+    } else {
+      document.getElementById("loginErr").style.display = "block";
+    }
+  });
+
+  // start exam after identitas
+  document.getElementById("btnMulai").addEventListener("click", ()=>{
+    const nama = document.getElementById("inputNama").value.trim();
+    const kelas = document.getElementById("inputKelas").value.trim();
+    const absen = document.getElementById("inputAbsen").value.trim();
+    if(!nama || !kelas){ alert("Silakan isi Nama dan Kelas"); return; }
+    state.nama = nama; state.kelas = kelas; state.absen = absen;
+    hdrSiswa.textContent = `${state.nama}\n${state.kelas}`; // two lines (displayed as block)
+    pageIdent.style.display = "none";
+    pageTest.style.display = "block";
+    document.getElementById("hdr").style.display = "flex";
+    startTimer();
+    renderQuestion();
+  });
+
+  // timer functions
+  function startTimer(){
+    state.started = true;
+    state.timeRemaining = DURATION_SECONDS;
+    timerEl.style.display = "block";
+    updateTimerDisplay();
+    state.timer = setInterval(()=>{
+      state.timeRemaining--;
+      updateTimerDisplay();
+      if(state.timeRemaining <= 0){
+        clearInterval(state.timer);
+        lockAll("Waktu habis — ujian dikunci.");
+      }
+    }, 1000);
+  }
+  function updateTimerDisplay(){
+    const m = Math.floor(state.timeRemaining / 60);
+    const s = state.timeRemaining % 60;
+    timerEl.textContent = `${m}:${s < 10 ? "0" : ""}${s}`;
+    // optional: turn red when < 60s
+    if(state.timeRemaining <= 60) timerEl.style.background = "#ffe6e6";
+    else timerEl.style.background = "#fff";
+  }
+
+  // render one question based on state.currentIndex
+  function renderQuestion(){
+    qContainer.innerHTML = "";
+    const i = state.currentIndex;
+    const q = QUESTIONS[i];
+    metaProgress.textContent = `Soal ${i+1} / ${TOTAL}`;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "question";
+
+    // title
+    const title = document.createElement("div");
+    title.className = "q-title";
+    title.textContent = `Soal ${i+1}`;
+    wrapper.appendChild(title);
+
+    // editable question text (textarea) so teacher can edit on the fly if desired
+    const qTextDiv = document.createElement("div");
+    qTextDiv.className = "q-text";
+    const qTextarea = document.createElement("textarea");
+    qTextarea.value = q.text;
+    qTextarea.addEventListener("input", (e)=>{ QUESTIONS[i].text = e.target.value; });
+    qTextDiv.appendChild(qTextarea);
+    wrapper.appendChild(qTextDiv);
+
+    // answer area
+    if(q.type === "mcq"){
+      const opts = document.createElement("div");
+      opts.className = "options";
+      const letters = ["A","B","C","D"];
+      for(let k=0;k<4;k++){
+        const lbl = document.createElement("label");
+        const inp = document.createElement("input");
+        inp.type = "radio";
+        inp.name = "answer";
+        inp.value = letters[k];
+        if(state.answers[i] === letters[k]) inp.checked = true;
+        inp.addEventListener("change", ()=> {
+          state.answers[i] = inp.value;
+        });
+        lbl.appendChild(inp);
+        // show choice text editable
+        const choiceInput = document.createElement("input");
+        choiceInput.type = "text";
+        choiceInput.value = q.choices[k] || "";
+        choiceInput.style.marginLeft = "8px";
+        choiceInput.style.width = "70%";
+        choiceInput.addEventListener("input",(e)=> { QUESTIONS[i].choices[k] = e.target.value; });
+        lbl.appendChild(document.createTextNode(" " + letters[k] + ". "));
+        lbl.appendChild(choiceInput);
+        opts.appendChild(lbl);
+      }
+      wrapper.appendChild(opts);
+    } else {
+      // short answer: show instruction textarea (question) and a student answer textarea
+      const studentTa = document.createElement("textarea");
+      studentTa.placeholder = "Ketik jawaban singkat anda di sini...";
+      studentTa.value = state.answers[i] || "";
+      studentTa.addEventListener("input", e => { state.answers[i] = e.target.value; });
+      wrapper.appendChild(studentTa);
+    }
+
+    qContainer.appendChild(wrapper);
+
+    // update buttons visibility / text
+    document.getElementById("btnPrev").style.display = (i === 0) ? "none" : "inline-block";
+    const btnNext = document.getElementById("btnNext");
+    if(i === TOTAL - 1){
+      btnNext.textContent = "Kirim Jawaban";
+      btnNext.dataset.final = "1";
+    } else {
+      btnNext.textContent = "Selanjutnya";
+      delete btnNext.dataset.final;
+    }
+  }
+
+  // navigation buttons
+  document.getElementById("btnPrev").addEventListener("click", ()=>{
+    if(state.currentIndex > 0){
+      state.currentIndex--;
+      renderQuestion();
+    }
+  });
+  document.getElementById("btnNext").addEventListener("click", ()=>{
+    const btn = document.getElementById("btnNext");
+    if(btn.dataset.final){
+      // final submit
+      if(confirm("Kirim jawaban dan unduh rekap ke Excel (CSV)?")) submitAndDownload();
+    } else {
+      if(state.currentIndex < TOTAL - 1){
+        state.currentIndex++;
+        renderQuestion();
+      }
+    }
+  });
+
+  // Reset current question's answer
+  document.getElementById("btnReset").addEventListener("click", ()=>{
+    const i = state.currentIndex;
+    state.answers[i] = "";
+    renderQuestion();
+  });
+
+  // lock inputs on timeout or after submit
+  function lockAll(message){
+    // disable inputs/buttons
+    document.querySelectorAll("input, textarea, button").forEach(el => el.disabled = true);
+    // show message in results area
+    pageTest.style.display = "none";
+    pageResult.style.display = "block";
+    resultSummary.innerHTML = `<strong>${message}</strong><br/><br/>Jika sudah ingin menyimpan rekap sementara, silakan hubungi guru.`;
+  }
+
+  // scoring MCQ
+  function computeScore(){
+    let score = 0;
+    for(let i=0;i<MCQ_COUNT;i++){
+      const ans = state.answers[i] ? state.answers[i].toString().trim().toUpperCase() : "";
+      if(ans && QUESTIONS[i].correct && ans === QUESTIONS[i].correct.toString().toUpperCase()){
+        score += POINTS_PER_MCQ;
+      }
+    }
+    return score;
+  }
+
+  // create CSV and trigger download (CSV can be opened in Excel)
+  function createAndDownloadCSV(filename, rows){
+    // rows: array of arrays
+    const csvContent = rows.map(r => r.map(cell => {
+      // escape double quotes
+      if(cell == null) return '';
+      const s = cell.toString();
+      if(s.includes('"') || s.includes(',') || s.includes('\n')){
+        return '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    }).join(",")).join("\r\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 5000);
+  }
+
+  // submit: compute score + build CSV + download + show summary
+  function submitAndDownload(){
+    // stop timer
+    if(state.timer) clearInterval(state.timer);
+
+    // compute score
+    const score = computeScore();
+
+    // build CSV rows: header + data
+    const header = ["Nama","Kelas","Absen","Timestamp","Total Score (MCQ / " + (MCQ_COUNT * POINTS_PER_MCQ) + ")"];
+    const firstRow = [state.nama, state.kelas, state.absen || "", new Date().toLocaleString(), score.toString()];
+    // followed by each question and student's answer
+    const rows = [];
+    rows.push(header);
+    rows.push(firstRow);
+    rows.push([]);
+    rows.push(["No","Tipe","Soal (teacher text)","Kunci (jika MCQ)","Jawaban Siswa"]);
+    for(let i=0;i<TOTAL;i++){
+      const q = QUESTIONS[i];
+      const tipe = q.type === "mcq" ? "MCQ" : "Short";
+      const soalText = q.text.replace(/\r?\n/g,' ');
+      const kunci = q.type === "mcq" ? (q.correct || "") : "";
+      const jaw = state.answers[i] || "";
+      rows.push([ (i+1).toString(), tipe, soalText, kunci, jaw ]);
+    }
+
+    // filename with timestamp
+    const fname = `rekap_ulangan_${state.nama.replace(/\s+/g,'_')}_${(new Date()).toISOString().slice(0,19).replace(/:/g,'-')}.csv`;
+
+    createAndDownloadCSV(fname, rows);
+
+    // show summary page
+    pageTest.style.display = "none";
+    pageResult.style.display = "block";
+    resultSummary.innerHTML = `<strong>Terima kasih, ${state.nama}.</strong><br/>Skor Pilihan Ganda: ${score} / ${MCQ_COUNT * POINTS_PER_MCQ}.<br/>Rekap jawaban telah diunduh (file CSV).`;
+    btnDownloadAgain.style.display = "inline-block";
+    btnDownloadAgain.onclick = ()=> {
+      createAndDownloadCSV(fname, rows);
+    };
+
+    // disable further interaction
+    document.querySelectorAll("input, textarea, button").forEach(el => el.disabled = true);
+  }
+
+  // allow direct download again from result page
+  btnDownloadAgain.addEventListener("click", ()=>{ /* handler set in submit */ });
+
+  // initial render of question container empty
+  renderQuestion();
+
+})();
+</script>
+</body>
+</html>
