@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Form Pendaftaran</title>
+<style>
+  /* layar laptop hijau tua */
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #0b5a2b; /* hijau tua */
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  }
+
+  /* wadah form (skin hijau muda) */
+  .card {
+    width: 95%;
+    max-width: 500px;
+    background-color: #bff3c9; /* hijau muda */
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  }
+
+  h2 {
+    text-align: center;
+    color: #052e18;
+    margin-bottom: 10px;
+  }
+
+  label {
+    display:block;
+    margin-top: 12px;
+    color: #052e18;
+    font-weight: 600;
+  }
+
+  /* input berwarna putih bersih */
+  input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #cfe9d8;
+    background: #ffffff;
+    box-sizing: border-box;
+    font-size: 15px;
+    color: #0b2e15;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 18px;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background-color: #0a8a47;
+  }
+
+  button:hover {
+    background-color: #066937;
+  }
+
+  #statusMsg {
+    text-align: center;
+    margin-top: 14px;
+    font-weight: 700;
+    color: #052e18;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Form Pendaftaran</h2>
+
+  <form id="dataForm">
+    <label for="nama">Nama</label>
+    <input type="text" id="nama" name="nama" placeholder="Masukkan nama lengkap" required>
+
+    <label for="madrasah">Asal Madrasah</label>
+    <input type="text" id="madrasah" name="madrasah" placeholder="Masukkan asal madrasah" required>
+
+    <button type="button" id="kirimBtn">Kirim</button>
+    <div id="statusMsg"></div>
+  </form>
+</div>
+
+<script>
+  // GANTI dengan URL Web App hasil deploy dari Google Apps Script
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx70xhbhY9y-seNmVCf9sL1cy53h4ovYOLB2CkFgnKOcT22pnrWOmDdfg9_Bm2Dn2Ng/exec";
+
+  const form = document.getElementById('dataForm');
+  const btn = document.getElementById('kirimBtn');
+  const statusMsg = document.getElementById('statusMsg');
+
+  btn.addEventListener('click', async () => {
+    const data = {
+      nama: document.getElementById('nama').value.trim(),
+      madrasah: document.getElementById('madrasah').value.trim(),
+    };
+
+    if (!data.nama || !data.madrasah) {
+      statusMsg.style.color = 'red';
+      statusMsg.textContent = 'Harap isi semua kolom!';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Mengirim...';
+    statusMsg.textContent = '';
+
+    try {
+      const res = await fetch(WEB_APP_URL, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+
+      if (result.status === 'success') {
+        statusMsg.style.color = '#063b13';
+        statusMsg.textContent = 'Data anda sudah terkirim';
+        form.reset(); // bersihkan form
+      } else {
+        statusMsg.style.color = 'red';
+        statusMsg.textContent = 'Terjadi kesalahan, coba lagi.';
+      }
+    } catch (e) {
+      statusMsg.style.color = 'red';
+      statusMsg.textContent = 'Gagal mengirim data. Periksa koneksi atau URL.';
+      console.error(e);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Kirim';
+    }
+  });
+</script>
+
+</body>
+</html>
